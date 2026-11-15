@@ -21,6 +21,8 @@ const at = (iso: string) => new Date(iso).getTime();
 function frontendHost(call: (name: string, input?: unknown) => Promise<unknown>) {
   const views = new Map<string, PluginView>();
   const renderers = new Map<string, PluginToolRenderer>();
+  const actions = new Map<string, { name: string; icon?: string }>();
+  const placements = new Map<string, { location: string }>();
   const notifications: ((event: { topic: string; data?: unknown }) => void)[] = [];
   const surfaces: { title: string; box: HTMLElement; close: () => void }[] = [];
   let settings: ((container: HTMLElement, signal: AbortSignal) => unknown) | undefined;
@@ -45,8 +47,8 @@ function frontendHost(call: (name: string, input?: unknown) => Promise<unknown>)
     signal: new AbortController().signal,
     call,
     registerView(view: PluginView) { views.set(view.id, view); return () => {}; },
-    registerAction() { return () => {}; },
-    placeAction() { return () => {}; },
+    registerAction(action: { id: string; name: string; icon?: string }) { assert.ok(!actions.has(action.id)); actions.set(action.id, action); return () => { actions.delete(action.id); }; },
+    placeAction(placement: { id: string; actionId: string; location: string }) { assert.ok(actions.has(placement.actionId) && !placements.has(placement.id)); placements.set(placement.id, placement); return () => { placements.delete(placement.id); }; },
     registerSettings(mount: typeof settings) { settings = mount; return () => {}; },
     registerToolRenderer(renderer: PluginToolRenderer) { renderers.set(renderer.toolName, renderer); return () => {}; },
     onNotification(listener: (event: { topic: string; data?: unknown }) => void) { notifications.push(listener); return () => {}; },
@@ -60,7 +62,7 @@ function frontendHost(call: (name: string, input?: unknown) => Promise<unknown>)
     },
   };
   const dispose = activateFrontend(ctx as unknown as PluginFrontendContext);
-  return { dispose, views, renderers, surfaces, notify: (topic: string, data?: unknown) => { for (const listener of notifications) listener({ topic, data }); }, settings: () => settings!, schema: () => settingsSchema! };
+  return { dispose, views, renderers, actions, placements, surfaces, notify: (topic: string, data?: unknown) => { for (const listener of notifications) listener({ topic, data }); }, settings: () => settings!, schema: () => settingsSchema! };
 }
 
 test("Rewards page draws the streak line, celebrates unlocks, renders star cards and saves settings", async () => {
@@ -86,13 +88,29 @@ test("Rewards page draws the streak line, celebrates unlocks, renders star cards
   assert.equal(lineFor("2026-11-06"), "rw-line");
   assert.match(root.querySelector('.rw-day[data-date="2026-11-03"]')!.getAttribute("aria-label")!, /in a streak, active$/);
 
+  // Top bar: unlit flame with the current count while today is still pending.
+  assert.equal(host.actions.get("streak")!.name, "3");
+  assert.match(host.actions.get("streak")!.icon!, /fill="none"/);
+  assert.equal(host.placements.get("streak-top-bar")!.location, "top-bar");
+
   // A new unlock is pushed by the backend → celebration overlay → closing marks it seen.
   sessions.set("chat-2", { updatedAt: "u2", messages: Array.from({ length: 10 }, (_, index) => ({ role: "toolResult", toolCallId: `q${index}`, toolName: "quiz", content: [], isError: false, timestamp: at("2026-11-05T20:30:00"), details: { correct: true, answeredAt: "2026-11-05T20:30:00" } })) });
   backend.fire({ type: "record-changed", chatId: "chat-2" });
   await flush();
   const celebrateEvent = backend.emitted.find(event => event.topic === "celebrate")!;
+  // Today's activity extends the streak: 3 → 4 rolls in an overlay, then the unlocks follow.
+  const streakEvent = backend.emitted.find(event => event.topic === "streak-up")!;
+  assert.deepEqual(streakEvent.data, { current: 4, mode: "daily" });
   host.notify("rewards-changed");
+  host.notify("streak-up", streakEvent.data);
   host.notify("celebrate", celebrateEvent.data);
+  await flush();
+  assert.equal(host.actions.get("streak")!.name, "4");
+  assert.match(host.actions.get("streak")!.icon!, /fill="#f97316"/);
+  const tick = host.surfaces.at(-1)!;
+  assert.equal(tick.title, "4-day streak");
+  assert.match(tick.box.textContent!, /Streak extended!🔥34day streak/);
+  (tick.box.querySelector(".rw-celebrate") as HTMLElement).click();
   await flush();
   const overlay = host.surfaces.at(-1)!;
   assert.equal(overlay.title, "Achievements unlocked");
@@ -128,7 +146,7 @@ test("Rewards page draws the streak line, celebrates unlocks, renders star cards
 
 test("reminder timing logic", () => {
   const view = (overrides: Record<string, unknown> = {}) => ({
-    settings: { streakMode: "daily", weeklyGoal: 3, reminder: { enabled: true, time: "19:00", os: true }, celebrations: { enabled: true, sound: false }, teacher: { enabled: true, starCap: 3 } },
+    settings: { streakMode: "daily", weeklyGoal: 3, reminder: { enabled: true, time: "19:00" }, celebrations: { enabled: true, sound: false }, teacher: { enabled: true, starCap: 3 } },
     streak: { mode: "daily", todayActive: false, week: { met: false } },
     reminderClaimed: null,
     ...overrides,

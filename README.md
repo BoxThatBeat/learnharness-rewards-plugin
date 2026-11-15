@@ -31,13 +31,17 @@ knowledge graph, and needs no other plugin.
 - **Achievements:** milestones for concepts in your knowledge graph, streak length,
   stars, questions answered, practice problems, and sessions. Also Perfect run,
   Early bird and Night owl.
-- **Celebrations:** a short confetti overlay when you unlock something. Close it with
-  a click or Escape, or wait about 4 s. It respects reduced motion. An optional chime
-  is off by default.
+- **Streak in the top bar:** a flame with your current streak count sits in the top
+  bar of teaching and practice sessions and the Rewards page. It is an outline until
+  today (or this week's goal) counts, then turns orange. Click it to open Rewards.
+- **Celebrations**
+  - When your activity makes the streak go up, a brief overlay rolls the count up by
+    one beside the flame, then closes itself after about 3 s.
+  - A short confetti overlay when you unlock something. Close it with a click or
+    Escape, or wait about 4 s.
+  - Both respect reduced motion. An optional chime is off by default.
 - **Reminders:** at a time you choose, if your streak needs activity today, you get a
-  reminder inside LearnHarness and, optionally, a desktop notification. These only
-  work while the app is running. Use **Test notification** in Settings to check
-  whether your system allows notifications.
+  reminder inside LearnHarness. It only works while the app is running.
 - **Teacher awareness** (optional): the teacher and practice agents see your streak
   and nearest milestones, so they can encourage you briefly.
 

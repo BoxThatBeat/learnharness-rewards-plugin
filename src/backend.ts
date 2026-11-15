@@ -84,6 +84,9 @@ export function activate(ctx: PluginBackendContext, options: BackendOptions = {}
       let next = mutate(state);
       const fresh: string[] = [];
       const derived = compute(next);
+      // The streak went up through new activity (not a mode/goal change or the first history scan).
+      const sameRules = next.settings.streakMode === state.settings.streakMode && next.settings.weeklyGoal === state.settings.weeklyGoal;
+      const streakUp = !quiet && sameRules && derived.streak.current > compute(state).streak.current;
       const unlocked = { ...next.unlocked };
       for (const achievement of derived.achievements) {
         if (!achievement.unlockedAt || unlocked[achievement.id]) continue;
@@ -105,6 +108,7 @@ export function activate(ctx: PluginBackendContext, options: BackendOptions = {}
       if (!disposed) {
         refreshInstructions();
         ctx.events.emit("rewards-changed");
+        if (streakUp && state.settings.celebrations.enabled) ctx.events.emit("streak-up", { current: derived.streak.current, mode: derived.streak.mode });
         if (fresh.length && state.settings.celebrations.enabled) ctx.events.emit("celebrate", { ids: fresh });
       }
       return state;

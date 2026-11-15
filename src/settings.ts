@@ -1,6 +1,4 @@
 import type { PluginFrontendContext, PluginSettingsRow, PluginWidgetHandle } from "learnharness-plugin-api";
-import { celebrate } from "./celebrate.ts";
-import { notificationSupport, showDesktopNotification } from "./reminders.ts";
 import type { Settings } from "./state.ts";
 import { el, message, subscribeState, type StateView } from "./ui-common.ts";
 
@@ -56,14 +54,8 @@ export function mountSettings(ctx: PluginFrontendContext, container: HTMLElement
         onChange: value => save(s => ({ ...s, reminder: { ...s.reminder, time: value } })),
       },
       {
-        key: "reminder-os", type: "toggle", label: "Desktop notification", disabled: disabled || !settings.reminder.enabled,
-        description: "Also show a system notification (use Test notification below to allow it).",
-        value: settings.reminder.os,
-        onChange: value => save(s => ({ ...s, reminder: { ...s.reminder, os: value } })),
-      },
-      {
         key: "celebrations", type: "toggle", label: "Celebrations", disabled,
-        description: "Confetti when you unlock an achievement or reach a streak milestone.",
+        description: "A streak animation when your streak goes up, and confetti when you unlock an achievement.",
         value: settings.celebrations.enabled,
         onChange: value => save(s => ({ ...s, celebrations: { ...s.celebrations, enabled: value } })),
       },
@@ -92,16 +84,6 @@ export function mountSettings(ctx: PluginFrontendContext, container: HTMLElement
 
   const button = (label: string, onClick: () => void | Promise<void>, variant: "outline" | "ghost" = "outline") =>
     widgets.push(ctx.ui.mountButton(actions, { label, variant, size: "sm", onClick }, { signal }) as PluginWidgetHandle<unknown>);
-  button("Test notification", async () => {
-    const support = notificationSupport(doc);
-    if (support === "unsupported") { status.textContent = "Desktop notifications aren't available in this window; reminders will appear inside LearnHarness."; return; }
-    const shown = await showDesktopNotification(doc, "Rewards", "Notifications work. Your study reminders will look like this.", true);
-    status.textContent = shown ? "Notification sent. If you didn't see it, check your system's notification settings." : "Notification permission was denied; reminders will appear inside LearnHarness.";
-  });
-  button("Preview celebration", () => {
-    const sample = view?.achievements.find(item => item.unlockedAt) ?? view?.achievements[0];
-    if (sample) celebrate(ctx, [{ ...sample, seen: true }], { sound: view?.settings.celebrations.sound ?? false, onDone: () => undefined });
-  });
   button("Rebuild from history", async () => {
     status.textContent = "Reading your learning history…";
     try { apply(await ctx.call<StateView>("rescan")); status.textContent = "Rebuilt from your sessions."; }

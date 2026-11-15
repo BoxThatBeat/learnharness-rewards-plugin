@@ -49,7 +49,7 @@ test("award_star respects the per-session cap across the record and the current 
   const host = fakeHost(temp(), sessions);
   activate(host.ctx, { now: clock("2026-11-03T20:00:00"), debounceMs: 5 });
   await flush();
-  await host.call("save-settings", { settings: { streakMode: "daily", weeklyGoal: 3, reminder: { enabled: false, time: "19:00", os: true }, celebrations: { enabled: true, sound: false }, teacher: { enabled: true, starCap: 2 } } });
+  await host.call("save-settings", { settings: { streakMode: "daily", weeklyGoal: 3, reminder: { enabled: false, time: "19:00" }, celebrations: { enabled: true, sound: false }, teacher: { enabled: true, starCap: 2 } } });
   const [star] = host.tools();
   const result = await star!.execute("new-1", { reason: "Derived the time constant yourself" });
   assert.match((result.content[0] as { text: string }).text, /Gold star awarded \(2\/2 this session/);
@@ -57,7 +57,7 @@ test("award_star respects the per-session cap across the record and the current 
   assert.equal(host.tools("chat-other").length, 1);
   assert.match(host.instructions()[0]!.text, /at most 2 per session/);
 
-  await host.call("save-settings", { settings: { streakMode: "daily", weeklyGoal: 3, reminder: { enabled: false, time: "19:00", os: true }, celebrations: { enabled: true, sound: false }, teacher: { enabled: false, starCap: 2 } } });
+  await host.call("save-settings", { settings: { streakMode: "daily", weeklyGoal: 3, reminder: { enabled: false, time: "19:00" }, celebrations: { enabled: true, sound: false }, teacher: { enabled: false, starCap: 2 } } });
   assert.equal(host.tools().length, 0);
   assert.equal(host.instructions().length, 0);
 });
@@ -68,7 +68,7 @@ test("weekly mode, reminder claims, persistence, and refusal of newer data", asy
   const host = fakeHost(dir, sessions);
   const dispose = activate(host.ctx, { now: clock("2026-11-11T20:00:00"), debounceMs: 5 });
   await flush();
-  const weekly = await host.call("save-settings", { settings: { streakMode: "weekly", weeklyGoal: 3, reminder: { enabled: true, time: "19:00", os: false }, celebrations: { enabled: true, sound: false }, teacher: { enabled: true, starCap: 3 } } });
+  const weekly = await host.call("save-settings", { settings: { streakMode: "weekly", weeklyGoal: 3, reminder: { enabled: true, time: "19:00" }, celebrations: { enabled: true, sound: false }, teacher: { enabled: true, starCap: 3 } } });
   assert.equal(weekly.streak.mode, "weekly");
   assert.equal(weekly.streak.current, 1);
   assert.deepEqual(weekly.streak.week, { start: "2026-11-09", activeDays: 1, goal: 3, met: false, daysLeft: 5 });

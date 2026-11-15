@@ -6,7 +6,7 @@ export const STATE_VERSION = 1;
 export type Settings = {
   streakMode: StreakMode;
   weeklyGoal: number;
-  reminder: { enabled: boolean; time: string; os: boolean };
+  reminder: { enabled: boolean; time: string };
   celebrations: { enabled: boolean; sound: boolean };
   teacher: { enabled: boolean; starCap: number };
 };
@@ -27,7 +27,7 @@ export function defaultSettings(): Settings {
   return {
     streakMode: "daily",
     weeklyGoal: 3,
-    reminder: { enabled: false, time: "19:00", os: true },
+    reminder: { enabled: false, time: "19:00" },
     celebrations: { enabled: true, sound: false },
     teacher: { enabled: true, starCap: 3 },
   };
@@ -59,7 +59,7 @@ export function readSettings(value: unknown): Settings {
   return {
     streakMode: value.streakMode,
     weeklyGoal: int(value.weeklyGoal, "Weekly goal", 1, 7),
-    reminder: { enabled: bool(value.reminder.enabled, "Reminders"), time: value.reminder.time, os: bool(value.reminder.os, "Desktop notifications") },
+    reminder: { enabled: bool(value.reminder.enabled, "Reminders"), time: value.reminder.time },
     celebrations: { enabled: bool(value.celebrations.enabled, "Celebrations"), sound: bool(value.celebrations.sound, "Sound") },
     teacher: { enabled: bool(value.teacher.enabled, "Teacher awareness"), starCap: int(value.teacher.starCap, "Stars per session", 0, 20) },
   };

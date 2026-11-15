@@ -2,33 +2,6 @@ import type { PluginFrontendContext, PluginWidgetHandle } from "learnharness-plu
 import { localDate } from "./dates.ts";
 import { el, statusText, type StateView } from "./ui-common.ts";
 
-type NotificationApi = { permission: string; requestPermission(): Promise<string> } & (new (title: string, options?: { body?: string; silent?: boolean }) => unknown);
-
-function api(doc: Document): NotificationApi | null {
-  const candidate = (doc.defaultView as unknown as { Notification?: NotificationApi } | null)?.Notification;
-  return typeof candidate === "function" ? candidate : null;
-}
-
-export function notificationSupport(doc: Document): "unsupported" | "granted" | "denied" | "default" {
-  const Notification = api(doc);
-  if (!Notification) return "unsupported";
-  return Notification.permission === "granted" || Notification.permission === "denied" ? Notification.permission : "default";
-}
-
-/** Show a desktop notification if the window supports it. Asks for permission only when
- * `askPermission` (a direct user action); otherwise uses an existing grant. */
-export async function showDesktopNotification(doc: Document, title: string, body: string, askPermission: boolean): Promise<boolean> {
-  const Notification = api(doc);
-  if (!Notification) return false;
-  try {
-    let permission = Notification.permission;
-    if (permission === "default" && askPermission) permission = await Notification.requestPermission();
-    if (permission !== "granted") return false;
-    new Notification(title, { body });
-    return true;
-  } catch { return false; }
-}
-
 /** Should a reminder fire now? Pure for testing. */
 export function reminderDue(view: Pick<StateView, "settings" | "streak" | "reminderClaimed">, now: Date): boolean {
   const { reminder } = view.settings;
@@ -47,7 +20,6 @@ export function setupReminders(ctx: PluginFrontendContext, openRewards: () => vo
   let latest: StateView | null = null;
   let checking = false;
   let dialog: PluginWidgetHandle<unknown> | undefined;
-  const doc = document;
 
   async function check() {
     if (checking || ctx.signal.aborted) return;
@@ -60,7 +32,6 @@ export function setupReminders(ctx: PluginFrontendContext, openRewards: () => vo
       if (!claimed || ctx.signal.aborted) return;
       const text = statusText(latest.streak);
       const streak = latest.streak.current ? ` You're on a ${latest.streak.current}-${latest.streak.mode === "daily" ? "day" : "week"} streak.` : "";
-      if (latest.settings.reminder.os) await showDesktopNotification(doc, "Time to learn", `${text}.${streak}`, false);
       dialog?.dispose();
       dialog = ctx.ui.openDialog({
         title: "Study reminder",

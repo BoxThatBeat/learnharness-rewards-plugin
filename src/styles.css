@@ -95,6 +95,12 @@
 .rw-celebrate__icon { font-size: 2.5rem; animation: rw-bounce 1s ease-in-out 0.3s 2; }
 .rw-celebrate__title { font-size: 1.1rem; font-weight: 700; }
 .rw-celebrate__description { color: var(--rw-muted); }
+.rw-streak-up { min-width: 12rem; gap: 0.25rem; }
+.rw-streak-up__flame { font-size: 4rem; line-height: 1.1; animation: rw-flare 0.7s cubic-bezier(0.2, 1.6, 0.4, 1) 0.55s both; }
+.rw-streak-up__number { height: 1.1em; overflow: hidden; color: var(--rw-fire); font-size: 3.25rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.rw-streak-up__roll { display: flex; flex-direction: column; align-items: center; animation: rw-roll 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) 0.55s both; }
+.rw-streak-up__roll span { height: 1.1em; }
+.rw-streak-up__label { font-size: 1.1rem; font-weight: 700; }
 .rw-confetti { position: absolute; inset: 0; pointer-events: none; }
 .rw-confetti__piece { position: absolute; top: -1rem; width: 0.5rem; height: 0.9rem; border-radius: 2px; animation-name: rw-fall; animation-timing-function: cubic-bezier(0.25, 0.6, 0.5, 1); animation-fill-mode: both; }
 .rw-reminder { display: flex; flex-direction: column; gap: 0.5rem; min-width: min(26rem, 80vw); }
@@ -114,12 +120,16 @@
 @keyframes rw-pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes rw-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-0.4rem); } }
 @keyframes rw-fall { from { transform: translate(0, 0) rotate(0); opacity: 1; } to { transform: translate(var(--rw-drift, 0), 110vh) rotate(var(--rw-spin, 360deg)); opacity: 0.9; } }
+@keyframes rw-roll { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+@keyframes rw-flare { 0% { transform: scale(1); } 45% { transform: scale(1.4) rotate(-6deg); } 100% { transform: scale(1); } }
 @keyframes rw-star { 0% { transform: scale(0) rotate(-120deg); } 70% { transform: scale(1.25) rotate(10deg); } 100% { transform: scale(1) rotate(0); } }
 @keyframes rw-shine { to { transform: translateX(100%); } }
 
 @media (prefers-reduced-motion: reduce) {
   .rw-flame__icon, .rw-celebrate__card, .rw-celebrate__icon, .rw-star-card__icon--pop, .rw-star-card__shine { animation: none; }
   .rw-confetti { display: none; }
+  .rw-streak-up__flame { animation: none; }
+  .rw-streak-up__roll { animation: none; transform: translateY(-50%); }
 }
 @media (max-width: 640px) {
   .rw-day { min-height: 3.5rem; }
