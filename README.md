@@ -23,11 +23,11 @@ knowledge graph, and needs no other plugin.
   - Today, or the current week, never breaks a streak until it is over.
 - **Freezes:** you earn 1 freeze per 7-day streak (daily mode) or per 4 counted weeks
   (weekly mode), holding at most 2. A missed day or week uses one automatically.
-- **Gold stars**
-  - **Automatic:** for every correct quiz answer and every finished practice problem.
-  - **From the teacher:** the `award_star` tool, for genuinely excellent work, with a
-    per-session cap (default 3). These appear in the chat as an animated gold star
-    card with the reason.
+- **Gold stars:** awarded only by the teacher, through the `award_star` tool, for
+  genuinely excellent work, with a per-session cap (default 3). Each one appears in
+  the chat as an animated gold star card with the reason. Correct answers and
+  finished practice problems do not earn stars; they count toward their own
+  achievements.
 - **Achievements:** milestones for concepts in your knowledge graph, streak length,
   stars, questions answered, practice problems, and sessions. Also Perfect run,
   Early bird and Night owl.

@@ -74,7 +74,7 @@ const facts = (overrides: Partial<SessionFacts>): SessionFacts => ({
 test("derive aggregates sessions into totals, achievements with unlock dates, and milestones", () => {
   const questionDates = days("2026-11-01", 12);
   const derived = derive({
-    a: facts({ activeDates: days("2026-11-01", 3), questionDates: questionDates.slice(0, 6), correctAnswers: 6, stars: questionDates.slice(0, 6).map((date, index) => ({ date, source: "quiz", id: `q${index}` })), perfectRunDate: "2026-11-02" }),
+    a: facts({ activeDates: days("2026-11-01", 3), questionDates: questionDates.slice(0, 6), correctAnswers: 6, stars: [...questionDates.slice(0, 6).map((date, index) => ({ date, source: "teacher" as const, id: `t${index}` })), { date: "2026-11-01", source: "quiz" as const, id: "legacy" }], perfectRunDate: "2026-11-02" }),
     b: facts({ activeDates: ["2026-11-04"], questionDates: questionDates.slice(6), problemDates: ["2026-11-04"], earlyBirdDate: "2026-11-04" }),
   }, days("2026-10-01", 12), "daily", 3, "2026-11-04");
   assert.deepEqual(derived.totals, { stars: 6, questions: 12, correct: 6, problems: 1, sessions: 2, concepts: 12, activeDays: 4 });
@@ -85,7 +85,8 @@ test("derive aggregates sessions into totals, achievements with unlock dates, an
   assert.equal(byId["practice-1"]!.unlockedAt, "2026-11-04");
   assert.equal(byId["fun-perfect-run"]!.unlockedAt, "2026-11-02");
   assert.equal(byId["fun-night-owl"]!.unlockedAt, null);
-  assert.equal(byId["stars-10"]!.progress, 6);
+  assert.equal(byId["stars-10"]!.progress, 6, "legacy automatic stars are ignored");
+  assert.equal(byId["stars-5"]!.unlockedAt, "2026-11-05");
   assert.equal(derived.starsByDate["2026-11-01"], 1);
   const next = nextMilestones(derived.achievements);
   assert.equal(new Set(next.map(item => item.group)).size, next.length, "one per group");

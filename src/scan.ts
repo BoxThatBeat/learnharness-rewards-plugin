@@ -8,6 +8,8 @@ const QUIZ_TOOLS = new Set(["quiz", "explain"]);
 const CONCLUDE_TOOL = "conclude";
 const PRACTICE_MARKERS = new Set(["practice-thinking", "plugin-problem-submission"]);
 
+/** Gold stars come only from the teacher. Records saved by 0.1.0 may still hold automatic
+ * "quiz"/"practice" stars; those are ignored when counting. */
 export type StarEvent = { date: string; source: "quiz" | "practice" | "teacher"; reason?: string; id: string };
 
 export type SessionFacts = {
@@ -71,7 +73,6 @@ export function scanSession(record: unknown): SessionFacts | null {
         const stamp = localStamp(message.timestamp);
         if (!stamp) continue;
         facts.problemDates.push(stamp.date);
-        facts.stars.push({ date: stamp.date, source: "practice", id: `practice:${String(part.id ?? facts.problemDates.length)}` });
       }
       continue;
     }
@@ -84,7 +85,6 @@ export function scanSession(record: unknown): SessionFacts | null {
       facts.questionDates.push(date);
       if (details.correct === true) {
         facts.correctAnswers++;
-        facts.stars.push({ date, source: "quiz", id: `quiz:${String(message.toolCallId ?? facts.questionDates.length)}` });
         run++;
         if (run >= PERFECT_RUN && !facts.perfectRunDate) facts.perfectRunDate = date;
       } else if (details.correct === false) run = 0;

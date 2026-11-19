@@ -114,7 +114,7 @@ test("Rewards page draws the streak line, celebrates unlocks, renders star cards
   await flush();
   const overlay = host.surfaces.at(-1)!;
   assert.equal(overlay.title, "Achievements unlocked");
-  assert.match(overlay.box.textContent!, /Achievements unlocked![\s\S]*10 gold stars/);
+  assert.match(overlay.box.textContent!, /Achievements unlocked![\s\S]*10 questions/);
   (overlay.box.querySelector(".rw-celebrate") as HTMLElement).click();
   await flush();
   assert.deepEqual(((await backend.call("get-state")) as { unseen: string[] }).unseen, []);
@@ -123,7 +123,7 @@ test("Rewards page draws the streak line, celebrates unlocks, renders star cards
   [...root.querySelectorAll("button")].find(node => node.textContent === "Achievements")!.dispatchEvent(new window.Event("click") as unknown as Event);
   await flush();
   const unlockedBadges = [...root.querySelectorAll(".rw-badge.is-unlocked .rw-badge__title")].map(node => node.textContent);
-  assert.ok(unlockedBadges.includes("10 gold stars") && unlockedBadges.includes("3-day streak"));
+  assert.ok(unlockedBadges.includes("10 questions") && unlockedBadges.includes("3-day streak"));
 
   // Gold star card.
   const card = doc.createElement("div");

@@ -29,13 +29,14 @@ test("first scan backfills history quietly, later activity unlocks and celebrate
   assert.equal(host.emitted.some(event => event.topic === "celebrate"), false);
   assert.match(host.instructions()[0]!.text, /3-day streak \(already active today\)/);
 
-  // New activity in another session: a correct answer → star; scanning is event-driven.
+  // New activity in another session: correct answers earn no stars; scanning is event-driven.
   sessions.set("chat-2", { updatedAt: "u2", messages: Array.from({ length: 10 }, (_, index) => correctQuiz(`q${index}`, "2026-11-03T21:00:00")) });
   host.fire({ type: "record-changed", chatId: "chat-2" });
   await flush();
   const next = await host.call("get-state");
-  assert.equal(next.totals.stars, 10);
-  assert.deepEqual(next.unseen.sort(), ["fun-perfect-run", "questions-10", "stars-10"]);
+  assert.equal(next.totals.stars, 0, "only the teacher awards stars");
+  assert.equal(next.totals.correct, 10);
+  assert.deepEqual(next.unseen.sort(), ["fun-perfect-run", "questions-10"]);
   const celebrate = host.emitted.find(event => event.topic === "celebrate")!;
   assert.deepEqual((celebrate.data as { ids: string[] }).ids.sort(), next.unseen.sort());
   await host.call("mark-seen", { ids: next.unseen });

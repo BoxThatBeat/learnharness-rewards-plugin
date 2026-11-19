@@ -34,9 +34,7 @@ test("scanner extracts activity, answers, stars, conclusions and fun flags", () 
   assert.equal(facts.correctAnswers, 6);
   assert.equal(facts.perfectRunDate, "2026-11-03");
   assert.deepEqual(facts.problemDates, ["2026-11-04"]);
-  assert.deepEqual(facts.stars.map(star => `${star.source}:${star.date}`), [
-    "quiz:2026-11-02", ...Array(5).fill("quiz:2026-11-03"), "practice:2026-11-04", "teacher:2026-11-04",
-  ]);
+  assert.deepEqual(facts.stars.map(star => `${star.source}:${star.date}`), ["teacher:2026-11-04"], "only teacher stars");
   assert.equal(facts.stars.at(-1)!.reason, "Great derivation");
   assert.equal(facts.earlyBirdDate, "2026-11-02");
   assert.equal(facts.nightOwlDate, "2026-11-03");

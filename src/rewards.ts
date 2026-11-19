@@ -113,7 +113,7 @@ export function catalog(mode: StreakMode): AchievementDef[] {
     ...(mode === "daily"
       ? tiers("streak", "🔥", [3, 7, 14, 30, 60, 100], n => `${n}-day streak`, n => `Study ${n} days in a row.`, "streak-days")
       : tiers("streak", "🔥", [2, 4, 8, 12, 26, 52], n => `${n}-week streak`, n => `Meet your weekly goal ${n} weeks in a row.`, "streak-weeks")),
-    ...tiers("stars", "⭐", [10, 50, 100, 500], n => `${n} gold stars`, n => `Collect ${n} gold stars.`),
+    ...tiers("stars", "⭐", [5, 10, 25, 50], n => `${n} gold stars`, n => `Collect ${n} gold stars.`),
     ...tiers("questions", "❓", [10, 50, 100, 500], n => `${n} questions`, n => `Answer ${n} questions.`),
     ...tiers("practice", "🛠️", [1, 10, 50], n => n === 1 ? "First problem" : `${n} problems`, n => n === 1 ? "Finish your first practice problem." : `Finish ${n} practice problems.`),
     ...tiers("sessions", "📚", [1, 10, 50], n => n === 1 ? "First session" : `${n} sessions`, n => n === 1 ? "Complete your first learning session." : `Learn in ${n} different sessions.`),
@@ -138,7 +138,7 @@ export function derive(sessions: Record<string, SessionFacts>, conceptDates: str
   const facts = Object.values(sessions);
   const active = new Set(facts.flatMap(fact => fact.activeDates));
   const sortedDates = (values: string[]) => values.filter(Boolean).sort();
-  const stars: StarEvent[] = facts.flatMap(fact => fact.stars);
+  const stars: StarEvent[] = facts.flatMap(fact => fact.stars).filter(star => star.source === "teacher");
   const starDates = sortedDates(stars.map(star => star.date));
   const questionDates = sortedDates(facts.flatMap(fact => fact.questionDates));
   const problemDates = sortedDates(facts.flatMap(fact => fact.problemDates));

@@ -74,7 +74,7 @@ export function mountSettings(ctx: PluginFrontendContext, container: HTMLElement
       {
         key: "star-cap", type: "number", label: "Teacher stars per session", min: 0, max: 20, step: 1,
         disabled: disabled || !settings.teacher.enabled,
-        description: "0 turns teacher-awarded stars off; automatic stars still count.",
+        description: "How many gold stars the teacher may award in one session. 0 turns gold stars off.",
         value: settings.teacher.starCap,
         onChange: value => save(s => ({ ...s, teacher: { ...s.teacher, starCap: value } })),
       },

@@ -23,7 +23,7 @@ export function buildInstructions(derived: Derived, starCap: number): string {
   const weekly = streak.mode === "weekly" ? ` This week: ${streak.week.activeDays}/${streak.week.goal} active days.` : "";
   const next = nextMilestones(derived.achievements, 2).map(item => `${item.title} (${item.progress}/${item.threshold})`).join(", ");
   const stars = starCap > 0
-    ? ` You may call ${STAR_TOOL_NAME} with a short reason to give a gold star for genuinely excellent work (a sharp prediction, a clear explanation in the learner's own words, persistence through a hard problem) — at most ${starCap} per session, never for routine answers. Correct quiz answers and finished practice problems earn stars automatically.`
+    ? ` You may call ${STAR_TOOL_NAME} with a short reason to give a gold star for genuinely excellent work (a sharp prediction, a clear explanation in the learner's own words, persistence through a hard problem) — at most ${starCap} per session, never for routine answers.`
     : "";
   return `Learner motivation context (Rewards): ${streakText}; ${totals.stars} gold stars so far.${weekly}${next ? ` Closest milestones: ${next}.` : ""} Mention progress briefly and warmly only when it fits naturally; never let it distract from learning.${stars}`;
 }
@@ -88,12 +88,16 @@ export function activate(ctx: PluginBackendContext, options: BackendOptions = {}
       const sameRules = next.settings.streakMode === state.settings.streakMode && next.settings.weeklyGoal === state.settings.weeklyGoal;
       const streakUp = !quiet && sameRules && derived.streak.current > compute(state).streak.current;
       const unlocked = { ...next.unlocked };
+      let pruned = false;
       for (const achievement of derived.achievements) {
+        // A recorded unlock the facts no longer support (e.g. the rules changed) is dropped,
+        // so it can be earned and celebrated properly later.
+        if (!achievement.unlockedAt && unlocked[achievement.id]) { delete unlocked[achievement.id]; pruned = true; }
         if (!achievement.unlockedAt || unlocked[achievement.id]) continue;
         unlocked[achievement.id] = { unlockedAt: achievement.unlockedAt, seen: quiet };
         if (!quiet) fresh.push(achievement.id);
       }
-      if (fresh.length || Object.keys(unlocked).length !== Object.keys(next.unlocked).length) next = { ...next, unlocked };
+      if (fresh.length || pruned || Object.keys(unlocked).length !== Object.keys(next.unlocked).length) next = { ...next, unlocked };
       if (next === state) return state;
       await fs.promises.mkdir(ctx.dataDirectory, { recursive: true });
       const temporary = `${file}.${randomUUID()}.tmp`;
