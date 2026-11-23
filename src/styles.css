@@ -52,18 +52,19 @@
 .rw-month { margin: 0 0.5rem; min-width: 10rem; font-size: 0.95rem; font-weight: 600; text-align: center; }
 .rw-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--rw-border); border-radius: 0.5rem; overflow: hidden; }
 .rw-grid__weekday { padding: 0.25rem; border-bottom: 1px solid var(--rw-border); color: var(--rw-muted); font-size: 11px; text-align: center; text-transform: uppercase; }
-.rw-day { position: relative; display: flex; flex-direction: column; min-height: 4.75rem; padding: 0.3rem 0 0.4rem; border-bottom: 1px solid color-mix(in oklab, var(--rw-border) 60%, transparent); min-width: 0; }
+.rw-day { position: relative; display: flex; flex-direction: column; min-height: 4.75rem; padding: 0.3rem 0 0.8rem; border-bottom: 1px solid color-mix(in oklab, var(--rw-border) 60%, transparent); min-width: 0; }
 .rw-day.is-outside { opacity: 0.4; }
 .rw-day__top { display: flex; justify-content: space-between; padding: 0 0.35rem; }
 .rw-day__number { color: var(--rw-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
 .rw-day.is-today .rw-day__number { padding: 0 0.35rem; border-radius: 999px; background: var(--rw-fire); color: #fff; }
 .rw-day__stars { font-size: 0.72rem; }
-.rw-day__dot { align-self: center; width: 0.45rem; height: 0.45rem; margin-top: 0.3rem; border-radius: 50%; background: var(--rw-fire); }
-.rw-day__week { position: absolute; right: 0.3rem; bottom: 0.2rem; color: var(--rw-muted); font-size: 10px; }
+/* Out of flow so an active day's line sits at the same height as every other day's. */
+.rw-day__dot { position: absolute; left: 50%; bottom: 0.2rem; width: 0.4rem; height: 0.4rem; transform: translateX(-50%); border-radius: 50%; background: var(--rw-fire); }
+.rw-day__week { position: absolute; right: 0.3rem; bottom: 1.45rem; color: var(--rw-muted); font-size: 10px; }
 .rw-day__week.is-met { color: var(--rw-ok); font-weight: 600; }
 /* The streak line: full-width per cell so consecutive days join into one bar; caps round the ends. */
 .rw-line { height: 0.5rem; margin-top: auto; }
-.rw-line.is-on { background: linear-gradient(90deg, var(--rw-fire), var(--rw-gold)); }
+.rw-line.is-on { background: var(--rw-fire); }
 .rw-line.is-start { margin-left: 0.45rem; border-top-left-radius: 999px; border-bottom-left-radius: 999px; }
 .rw-line.is-end { margin-right: 0.45rem; border-top-right-radius: 999px; border-bottom-right-radius: 999px; }
 .rw-line.is-frozen { background: repeating-linear-gradient(45deg, var(--rw-ice), var(--rw-ice) 4px, color-mix(in oklab, var(--rw-ice) 55%, white) 4px, color-mix(in oklab, var(--rw-ice) 55%, white) 8px); }
@@ -71,7 +72,7 @@
 .rw-legend { display: flex; flex-wrap: wrap; gap: 1rem; }
 .rw-legend__item { display: inline-flex; gap: 0.35rem; align-items: center; color: var(--rw-muted); font-size: 0.8rem; }
 .rw-legend__swatch { display: inline-block; width: 1.5rem; height: 0.45rem; border-radius: 999px; }
-.rw-legend__swatch.is-line { background: linear-gradient(90deg, var(--rw-fire), var(--rw-gold)); }
+.rw-legend__swatch.is-line { background: var(--rw-fire); }
 .rw-legend__swatch.is-frozen { background: var(--rw-ice); }
 .rw-legend__swatch.is-dot { width: 0.45rem; background: var(--rw-fire); }
 .rw-legend__swatch.is-pending { border: 2px dashed var(--rw-fire); height: 0.25rem; }
